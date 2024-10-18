@@ -36,3 +36,8 @@ export default function Day() {
     </>
   );
 }
+
+// Create - POST
+// Read - GET
+// Update - PUT
+// Delete - DELETE
