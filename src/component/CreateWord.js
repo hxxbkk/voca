@@ -1,10 +1,11 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useFetch from '../hooks/useFetch';
 
 export default function CreateWord() {
   const days = useFetch('http://localhost:3001/days');
   const history = useNavigate();
+  const [isLoading, setIsLoading] = useState(false);
 
   function onSubmit(e) {
     e.preventDefault();
@@ -13,24 +14,28 @@ export default function CreateWord() {
     // console.log(korRef.current.value);
     // console.log(dayRef.current.value);
 
-    fetch(`http://localhost:3001/words/`, {
-      method: 'POST',
-      headers: {
-        //콘텐트타입은 보내는 리소스의 타입을 의미, 평범한 문자열부터 html, 이미지 등 여러가지가 있을 수 있음, 여기서는 json 형태로 받을거임
-        'Content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        day: dayRef.current.value,
-        eng: engRef.current.value,
-        kor: korRef.current.value,
-        isDone: false,
-      }),
-    }).then((res) => {
-      if (res.ok) {
-        alert('생성이 완료 되었습니다');
-        history(`/day/${dayRef.current.value}`);
-      }
-    });
+    if (!isLoading) {
+      setIsLoading(true);
+      fetch(`http://localhost:3001/words/`, {
+        method: 'POST',
+        headers: {
+          //콘텐트타입은 보내는 리소스의 타입을 의미, 평범한 문자열부터 html, 이미지 등 여러가지가 있을 수 있음, 여기서는 json 형태로 받을거임
+          'Content-type': 'application/json',
+        },
+        body: JSON.stringify({
+          day: dayRef.current.value,
+          eng: engRef.current.value,
+          kor: korRef.current.value,
+          isDone: false,
+        }),
+      }).then((res) => {
+        if (res.ok) {
+          alert('생성이 완료 되었습니다');
+          history(`/day/${dayRef.current.value}`);
+          setIsLoading(false);
+        }
+      });
+    }
   }
 
   const engRef = useRef(null);
@@ -57,7 +62,9 @@ export default function CreateWord() {
           ))}
         </select>
       </div>
-      <button>저장</button>
+      <button style={{ opacity: isLoading ? 0.3 : 1 }}>
+        {isLoading ? 'Saving...' : '저장'}
+      </button>
     </form>
   );
 }
